@@ -99,8 +99,7 @@
 
   [S R]
 
-  (set (apply union
-              (for [r R] (map #(vector (first r) %) (image-of S (second r)))))))
+  (set (apply union (for [r R] (map #(vector (first r) %) (image-of S (second r)))))))
 
 (defn- inv1
   "flips a tuple"
@@ -113,12 +112,8 @@
   "computes the inverse (aka converse) of a relation"
 
   [R]
-
     ;; (set (for [r R] [(second r) (first r)])) 
-
   (set (for [r R] (inv1 r)))
-
-
    ;; uses "set", "for"
   )
 
@@ -142,7 +137,7 @@
 
    ;; uses "every?", "contains?"
   )
-
+ 
 (test? "reflexive 1" (reflexive? #{[1 1] [1 2] [1 3] [2 2] [2 3] [3 3]} #{1 2 3}) true)
 
 (test? "reflexive 2" (reflexive? #{[1 1] [1 2] [1 3] [2 2] [2 3] [3 3]} #{1 2 3 4}) false)
@@ -175,14 +170,12 @@
   "tests whether R is transitive"
   [R]
   
-  (every? #(contains? (image-of R %) [% %]) A))
-	
+  (every? #(for [r R] (subset? (image-of R (second r)) (image-of R (first r)))) R)
 
-			; Transitive: relation in which if (a,b) and (b,c) exist then (a,c) also exists
-
-   ;; hint: you might want to exploit the fact that R is transitive iff for every
-   ;;       pair (a, b) in R the image of b under R is a subset of the image 
-  ;;       of a under R
+		;;       Transitive: relation in which if (a,b) and (b,c) exist then (a,c) also exists
+    ;;       hint: you might want to exploit the fact that R is transitive iff for every
+    ;;       pair (a, b) in R, the image of b under R is a subset of the image 
+    ;;       of a under R
 
    ;; uses "every?", "subset?", "image-of", "second", "first"
   )
