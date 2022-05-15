@@ -1,0 +1,16 @@
+edaa40.lab2 :reload
+page-rank TinyWeb 100000
+lein test
+xit
+exit
+lein test
+ls
+test
+ls
+dir
+edaa40.lab2 :reload
+exit
+edaa40.lab2 :reload
+'edaa40.lab2 :reload
+exit
+(page-rank TinyWeb 100000)
