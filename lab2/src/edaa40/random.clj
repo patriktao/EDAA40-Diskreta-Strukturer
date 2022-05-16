@@ -44,7 +44,7 @@
   
   [web page] 
 
-  (contains? (dom web) page)
+  (if (empty? (image-of web page)) true false)
 )
 
 (no-links? TinyWeb 3)
@@ -94,3 +94,30 @@
 
   ;;hint: check out "rand"
 )
+
+
+(defn random-surfer
+  "simulates a random surfer for a number of steps, returns page visit stats"
+
+  [web steps]
+
+  (loop [current (random-page web)
+         visits (into {} (map #(vector % 0) (all-pages web)))
+         i steps]
+    (if (zero? i)
+      visits
+      (recur (surf web current) (assoc visits current (inc (visits current))) (dec i))))
+)
+
+(defn page-rank
+  "produces random surfing visit stats scaled down by the number of steps"
+
+  [web steps]
+
+  (let
+   [visits (random-surfer web steps)]
+
+    (into {} (map #(vector % (double (/ (visits %) steps))) (keys visits))))
+)
+
+(page-rank TinyWeb 100000)

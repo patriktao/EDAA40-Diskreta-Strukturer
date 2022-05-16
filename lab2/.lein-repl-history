@@ -14,3 +14,39 @@ edaa40.lab2 :reload
 'edaa40.lab2 :reload
 exit
 (page-rank TinyWeb 100000)
+exit
+test
+tes
+test
+lein test
+test
+exit
+(page-rank TinyWeb 100000)
+(rand-nth (seq(all-pages web)))
+(all-pages TinyWeb) 
+(TinyWeb)
+(ns clojure-noob.core)
+ls
+(ns clojure-noob.core)
+(TinyWeb)
+exit
+(use 'edaa40.lab2 :reload)
+exit
+(use 'edaa40.lab2 :reload)
+:reload
+(use 'edaa40.lab2 :reload)
+(page-rank TinyWeb 100000)
+:reload
+(use 'edaa40.lab2 :reload)
+(reload)
+(use 'edaa40.lab2 :reload)
+(image-of web page)
+(image-of TinyWeb 0)
+(image-of TinyWeb 1)
+(image-of TinyWeb 2)
+(image-of TinyWeb 3)
+(image-of TinyWeb 4)
+(image-of TinyWeb 5)
+(image-of TinyWeb -1)
+(use 'edaa40.lab2 :reload)
+(page-rank TinyWeb 100000)

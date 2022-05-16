@@ -83,7 +83,8 @@
 
   [web page]
 
-  (contains? (dom web) page))
+  (if (empty? (image-of web page)) true false)
+)
 
 (test? "no-links? 1" (no-links? TinyWeb 0) false)
 (test? "no-links? 2" (no-links? TinyWeb 3) true)
@@ -111,8 +112,8 @@
 
   [web page]
 
-  (rand-nth (seq (for [w web :when (= page (first w))]
-                   w)))
+  ;(rand-nth (seq (for [w web :when (= page (first w))] w)))
+  (rand-nth(seq(image-of web page)))
 
 ;;   hint: If you've done the previous one, this one should be easy.
   )
@@ -127,7 +128,7 @@
 
   [web current]
   
-  (if (< (rand 1) alpha) (random-page web) (if (no-links? web current) (random-page web) (random-link web current)))
+  (if (< (rand 1) 0.15) (random-page web) (if(no-links? web current) (random-page web) (random-link web current)))
 
   ;;hint: check out "rand"
   )
