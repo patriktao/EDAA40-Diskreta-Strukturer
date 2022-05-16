@@ -1,0 +1,5 @@
+(use 'edaa40.lab3 :reload)
+(print-boards (rand-moves B0-OGT))
+(print-boards (rand-moves B1-OGT))
+(print-boards (rand-moves B2-OGT))
+(use 'edaa40.lab3 :reload)

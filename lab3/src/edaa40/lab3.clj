@@ -85,19 +85,19 @@
 
 (declare win?)
 
- (defn win?
+(defn win?
   "determines whether player p has fully occupied at least one of
   the lines in the variable winning-lines"
- 
+
   [p b]
 
   (some true? (for [line winning-lines] (threeinarow p b line)))
 
 ;;   hint: of course, this one uses threeinarow and winning-lines. Also, "some". 
- )
- 
- (test? "win? 1" (win? X [X _ _ X _ _ X _ _]))
- (test? "win? 2" (not (win? O [X _ _ X _ _ X _ _])))
+  )
+
+(test? "win? 1" (win? X [X _ _ X _ _ X _ _]))
+(test? "win? 2" (not (win? O [X _ _ X _ _ X _ _])))
 
 (defn opponent
   "computes the opponent of the specified player"
@@ -112,13 +112,13 @@
 (declare moves)
 
 (defn moves
-   "computes all possible moves player p can make on board b;
+  "computes all possible moves player p can make on board b;
     it returns a list of all possible new boards after p made a move,
     or an empty list, if p cannot make any move"
- 
-   [p b]
 
-   (map #(assoc b % p) (filter #(if(= (b %) _ ) true false)  (range 9)))
+  [p b]
+
+  (map #(assoc b % p) (filter #(if (= (b %) _) true false)  (range 9)))
    ;; (filter #(if(= (b %) _ ) true false)  (range 9)) //Vi får fram alla index vi kan lägga något på
    ;; assoc b % p // vi lägger p på positionen % 
    ;; map: vi gör det för varje position % som går.
@@ -131,11 +131,11 @@
 ;;
 ;;        All iteration happens in map and filter --- if you start writing loops, try to find a solution
 ;;        using the functions listed above.
-)
- 
- (test? "moves 1" (count (moves X B0)) 9)
- (test? "moves 2" (count (moves X B1)) 7)
- (test? "moves 3" (count (moves X B2)) 7)
+  )
+
+(test? "moves 1" (count (moves X B0)) 9)
+(test? "moves 2" (count (moves X B1)) 7)
+(test? "moves 3" (count (moves X B2)) 7)
 
 ;; A "game tree" is a map that has the following structure:
 ;; {:player <player> :board <some board> :win <winner> :children <list of game trees>}
@@ -146,29 +146,37 @@
 ;;            X wins, O wins, or we get a draw (assuming optimal play).
 
 
-(defn gametree
+
+(defn gametree 
   "computes the game tree that starts from board position b,
    with player p moving next"
-
+   
   [p b]
 
   (cond
-    (win? X b)\t{:player p :board b :win X :children '()}\t;; X has won
-    (win? O b)\t{:player p :board b :win O :children '()}\t;; O has won
+    (win? X b)	{:player p :board b :win X :children '()}	;; X has won
+    (win? O b)	{:player p :board b :win O :children '()}	;; O has won
     :else
-    (let
-     [c (map #(gametree (opponent p) %) (moves p b))       ;; all possible moves
-      w (cond
-          (empty? c)\t\t\t_\t\t;; no moves: this is a draw
-          (some #(= (% :win) p) c)\t\tp\t\t;; at least one winning move: s wins
-          (some #(= (% :win) _) c)\t\t_\t\t;; no winner, but at least one move to a draw: draw
-          :else \t\t\t\t(opponent p)\t;; all moves lead to opponent win, :-(
-          )]
-
-      {:player p :board b :children c :win w})))
+      (let 
+        [
+          c (map #(gametree (opponent p) %) (moves p b))       ;; all possible moves
+          w (cond
+              (empty? c)			_		;; no moves: this is a draw
+              (some #(= (% :win) p) c)		p		;; at least one winning move: s wins
+              (some #(= (% :win) _) c)		_		;; no winner, but at least one move to a draw: draw
+              :else 				(opponent p)	;; all moves lead to opponent win, :-(
+            )
+        ]
+        
+        { :player p :board b :children c :win w }
+      )
+  )
+)
 
 ;; If you have implemented "moves" and it passes the tests, try uncommenting these.
 ;; 
+
+
 (def B0-GT (gametree X B0))
 ;; 
 (def B1-GT (gametree X B1))
@@ -176,24 +184,29 @@
 (def B2-GT (gametree X B2))
 
 
-(declare gametree-count)
+;; ":children" shows all children of the node
+;; "if children is empty -> return 1, else increment and use recursion
+;; "reduce +" is counting the sum of recursion
+;; map game-tree:count (t:children) recursively 
 
-;; (defn gametree-count
-;;   "counts the number of nodes in a game tree"
-;;   
-;;   [t]
-;;   
+
+(defn gametree-count
+  "counts the number of nodes in a game tree"
+
+  [t]
+
+  (if (empty? (t :children)) 1 (inc (reduce + (map gametree-count (t :children)))))
+
 ;;  hint: uses empty?, inc, reduce, +, map
 ;;        With "map" you recursively compute a list of node counts of all
 ;;        children. Check out "reduce" to see how this gets you to
 ;;        thier sum. Of course, "empty?" is needed to make sure you 
 ;;        don't do this if a node does not have children.
-;; )
-;; 
-;; (test? "gametree-count B0" (gametree-count B0-GT) 549946)
-;; (test? "gametree-count B1" (gametree-count B1-GT) 7064)
-;; (test? "gametree-count B2" (gametree-count B2-GT) 6812)
+  )
 
+(test? "gametree-count B0" (gametree-count B0-GT) 549946)
+(test? "gametree-count B1" (gametree-count B1-GT) 7064)
+(test? "gametree-count B2" (gametree-count B2-GT) 6812)
 
 (defn reduce-gametree
   "reduces the game tree by throwing away all nodes where the winner is not the same as the
@@ -206,39 +219,36 @@
     t))
 
 ;; If all the tests pass up to here, try uncommenting this:
-;;
-;; (def B0-RGT (reduce-gametree B0-GT))
-;; 
-;; (def B1-RGT (reduce-gametree B1-GT))
-;; 
-;; (def B2-RGT (reduce-gametree B2-GT))
-;; 
-;; 
-;; (test? "reduce-gametree count B0" (gametree-count B0-RGT) 12134)
-;; (test? "reduce-gametree count B1" (gametree-count B1-RGT) 1765)
-;; (test? "reduce-gametree count B2" (gametree-count B2-RGT) 206)
-;; 
+
+(def B0-RGT (reduce-gametree B0-GT))
+(def B1-RGT (reduce-gametree B1-GT))
+(def B2-RGT (reduce-gametree B2-GT))
+
+(test? "reduce-gametree count B0" (gametree-count B0-RGT) 12134)
+(test? "reduce-gametree count B1" (gametree-count B1-RGT) 1765)
+(test? "reduce-gametree count B2" (gametree-count B2-RGT) 206)
 
 (declare gametree-height)
 
-;; (defn gametree-height
-;;   "computes the height of a game tree; a tree without children
-;;    has height 1, otherwise it has the maximal height of all its
-;;    children, plus 1"
-;;   
-;;   [t]
-;;
+(defn gametree-height
+  "computes the height of a game tree; a tree without children
+    has height 1, otherwise it has the maximal height of all its
+    children, plus 1"
+
+  [t]
+
+  (if (empty? (t :children)) 1 (inc (reduce max (map gametree-height (t :children)))))
+
 ;;  hint: uses empty?, inc, reduce, max, map
 ;;        With "map" you recursively compute a list of the height of all
 ;;        children. Check out "reduce" and "max" to see how this gets you to
 ;;        the maximal height. Of course, "empty?" is needed to make sure you 
 ;;        don't do this if a node does not have children.
-;; )
-;; 
-;; (test? "height B0-GT" (gametree-height B0-GT) 10)
-;; (test? "height B1-GT" (gametree-height B1-GT) 8)
-;; (test? "height B2-GT" (gametree-height B2-GT) 8)
+  )
 
+(test? "height B0-GT" (gametree-height B0-GT) 10)
+(test? "height B1-GT" (gametree-height B1-GT) 8)
+(test? "height B2-GT" (gametree-height B2-GT) 8)
 
 (defn choose-maxheight-gametrees
   "gets a list of game trees and picks those with the largest height,
@@ -294,31 +304,33 @@
 
 ;; If all the tests pass up to here, try uncommenting this:
 ;;
-;; (def B0-OGT (optimal-gametree B0-GT))
+(def B0-OGT (optimal-gametree B0-GT))
 ;; 
-;; (def B1-OGT (optimal-gametree B1-GT))
+(def B1-OGT (optimal-gametree B1-GT))
 ;; 
-;; (def B2-OGT (optimal-gametree B2-GT))
+(def B2-OGT (optimal-gametree B2-GT))
 ;; 
 ;; 
-;; (test? "optimal-gametree count B0" (gametree-count B0-OGT) 12134)
-;; (test? "optimal-gametree count B1" (gametree-count B1-OGT) 123)
-;; (test? "optimal-gametree count B2" (gametree-count B2-OGT) 206)
-
+(test? "optimal-gametree count B0" (gametree-count B0-OGT) 12134)
+(test? "optimal-gametree count B1" (gametree-count B1-OGT) 123)
+(test? "optimal-gametree count B2" (gametree-count B2-OGT) 206)
 
 (declare rand-moves)
 
-;; (defn rand-moves 
-;;   "compute a sequence of moves from a game tree by randomly picking a child at each node,
-;;    returns a list of boards"
-;;    
-;;    [t]
-;;    
-;;  hint: uses cons, empty?, rand-nth
+(defn rand-moves
+  "compute a sequence of moves from a game tree by randomly picking a child at each node,
+    returns a list of boards"
+
+  [t]
+
+  ;; ":" are usually used as keys in maps
+
+  (if (empty? (t :children)) '() (cons (t :board) (rand-moves(rand-nth (t :children)))))
+
+;;       hint: uses cons, empty?, rand-nth
 ;;        Returns a list where the first element is the board of the root node, followed by the
 ;;        list of boards produced from a randomly chosen child, or '() if there are no children.
-;; )
-;; 
+)
 
 ;; a small function to pretty-print a board, and one to print a list of boards,
 ;; and another one to print info on the top node in a game tree,
@@ -357,11 +369,11 @@
 ;;
 ;; try this a few times:
 ;;
-;;   (print-boards (rand-moves B0-OGT))
+(print-boards (rand-moves B0-OGT))
 ;;
-;;   (print-boards (rand-moves B1-OGT))
+(print-boards (rand-moves B1-OGT))
 ;;
-;;   (print-boards (rand-moves B2-OGT))
+(print-boards (rand-moves B2-OGT))
 ;;
 
 
